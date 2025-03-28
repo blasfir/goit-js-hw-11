@@ -17,4 +17,8 @@ export function lookingForImages(keyword) {
 	        }
         }
     )
+    .then(response => { return response.data.hits })
+    .catch(error => {
+        return [];
+    });
 }
