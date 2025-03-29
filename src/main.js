@@ -1,34 +1,34 @@
-import { lookingForImages } from './js/pixabay-api.js';
-import { renderGallery } from './js/render-functions.js';
+import SimpleLightbox from "simplelightbox";
+import "simplelightbox/dist/simple-lightbox.min.css";
+import { lookingForImages } from "./js/pixabay-api.js";
+import { renderGallery, clearGallery, showLoader, hideLoader } from "./js/render-functions.js";
 import iziToast from "izitoast";
-import groupSvg from "./img/group.svg"; 
+import "izitoast/dist/css/iziToast.min.css";
+import groupSvg from "./img/group.svg";
 
 const formEl = document.querySelector(".form");
 const inputEl = document.querySelector(".s-t-npt");
-const ulGallery = document.querySelector(".gallery");
 
 inputEl.addEventListener("click", () => {
     inputEl.style.borderColor = "#4E75FF";
     inputEl.style.color = "#2E2F42";
 });
 
-formEl.addEventListener("submit", (event) => {
+formEl.addEventListener("submit", function (event) {
     event.preventDefault();
+    const query = inputEl.value.trim();
 
-    if (inputEl.value.trim() === "") {
-        return;
-    }
+    if (!query) return;
 
-    ulGallery.innerHTML = "";
+    clearGallery();
+    showLoader();
 
-    lookingForImages(inputEl.value)
-        .then(response => {
-            if (response.data.hits.length === 0) {
+    lookingForImages(query)
+        .then(images => {
+            if (images.length === 0) {
                 iziToast.show({
                     message: 'Sorry, there are no images matching your search query. Please try again!',
                     messageColor: '#ffffff',
-                    messageSize: '16px',
-                    messageLineHeight: '88px',
                     backgroundColor: '#EF4040',
                     iconColor: '#ffffff',
                     position: 'topRight',
@@ -37,9 +37,10 @@ formEl.addEventListener("submit", (event) => {
                     iconUrl: groupSvg
                 });
             } else {
-                const gallery = renderGallery(response.data.hits);
-                ulGallery.append(...gallery);
+                renderGallery(images);
             }
         })
-});    
-    
+        .finally(() => {
+            hideLoader();
+        });
+});

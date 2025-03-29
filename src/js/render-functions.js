@@ -1,23 +1,42 @@
-import axios from 'axios';
-/*функції для відображення елементів інтерфейсу (додавання, оновлення, очищення елементів галереї; відображення, приховування лоедера)*/
+import SimpleLightbox from "simplelightbox";
+import "simplelightbox/dist/simple-lightbox.min.css";
+
+const ulGallery = document.querySelector(".gallery");
+const loader = document.querySelector(".loader");
 
 export function renderGallery(images) {
-    return images.map(({ webformatURL, largeImageURL, tags, likes, views, comments, downloads }) => {
-        const liEl = document.createElement('li');
-        liEl.classList.add("gallery-item");
-        const aEl = document.createElement('a');
-        aEl.classList.add("gallery-link");
-        const imgEl = document.createElement('img');
-        imgEl.classList.add("gallery-image");
-        aEl.addEventListener("click", (event) => event.preventDefault());
-        imgEl.src = webformatURL;
-        imgEl.alt = tags;
-        imgEl.width = 360;
-        imgEl.height = 200;
-        liEl.style.listStyleType = 'none';
-        liEl.append(aEl);
-        aEl.append(imgEl);
-        return liEl;
+    const markup = images.map(({ webformatURL, largeImageURL, tags, likes, views, comments, downloads }) => `
+        <li class="gallery-item">
+            <a class="gallery-link" href="${largeImageURL}">
+                <img class="gallery-image" src="${webformatURL}" alt="${tags}" width="360" height="152">
+            </a>
+                <ul class="gallery-list">
+                    <li class="lks li-elem"><p class="p-el">Likes</p><p class="p-elem">${likes}</p></li>
+                    <li class="vws li-elem"><p class="p-el">Views</p><p class="p-elem">${views}</p></li>
+                    <li class="cmmnts li-elem"><p class="p-el">Comments</p><p class="p-elem">${comments}</p></li>
+                    <li class=" li-elem"><p class="p-el">Downloads</p><p class="p-elem">${downloads}</p></li>
+                </ul>
+        </li>
+    `).join("");
+
+    ulGallery.insertAdjacentHTML("beforeend", markup);
+
+    const gallerySimpleLightbox = new SimpleLightbox(".gallery a", {
+        captionsData: "alt",
+        captionDelay: 250,
     });
 
-};
+    gallerySimpleLightbox.refresh();
+}
+
+export function clearGallery() {
+    ulGallery.innerHTML = "";
+}
+
+export function showLoader() {
+    loader.style.display = "block";
+}
+
+export function hideLoader() {
+    loader.style.display = "none";
+}
